@@ -9,218 +9,220 @@ import swervelib.imu.SwerveIMU;
 import swervelib.parser.SwerveModulePhysicalCharacteristics;
 import swervelib.parser.json.modules.ConversionFactorsJson;
 import swervelib.parser.PIDFConfig;
+import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveModuleConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+
 import com.studica.frc.AHRS.NavXComType;
-import com.studica.frc.AHRS;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import edu.wpi.first.wpilibj.ADIS16448_IMU;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import java.util.GregorianCalendar;
-import java.util.Optional;
+import static frc.robot.util.Constants.Drivetrain.*;
 
 public class Drivetrain extends SubsystemBase {
-    private final SwerveDrive swerveDrivetrain;
-    private final NavXSwerve gyro;
-    private final SwerveModuleConfiguration[] moduleConfigurations;
-    private final SwerveIMU imu;
+    private static Drivetrain drivetrain;
+
+    private SwerveDrive swerveDrive;
+    private NavXSwerve imu;
+    private SwerveModuleConfiguration[] moduleConfigurations;
+    // private final SwerveIMU imu;
 
 
     public Drivetrain() {
+        imu = new NavXSwerve(NavXComType.kMXP_SPI);
 
-        gyro = new NavXSwerve(NavXComType.kUSB2);
+        // imu = new SwerveIMU() {
 
-        imu = new SwerveIMU() {
+        //     @Override
+        //     public void clearStickyFaults() {
+        //         imu.clearStickyFaults();
+        //     }
 
-            @Override
-            public void clearStickyFaults() {
-                gyro.clearStickyFaults();
-            }
+        //     @Override
+        //     public void factoryDefault() {
+        //         imu.factoryDefault();
+        //     }
 
-            @Override
-            public void factoryDefault() {
-                gyro.factoryDefault();
-            }
-
-            @Override
-            public Object getIMU() {
-                return gyro.getIMU();
-            }
+        //     @Override
+        //     public Object getIMU() {
+        //         return imu.getIMU();
+        //     }
         
-            @Override
-            public MutAngularVelocity getYawAngularVelocity() {
-                return gyro.getYawAngularVelocity();
-            }
+        //     @Override
+        //     public MutAngularVelocity getYawAngularVelocity() {
+        //         return imu.getYawAngularVelocity();
+        //     }
 
-            @Override
-            public Optional<Translation3d> getAccel() {
-                return gyro.getAccel();
-            }
+        //     @Override
+        //     public Optional<Translation3d> getAccel() {
+        //         return imu.getAccel();
+        //     }
 
-            @Override
-            public Rotation3d getRawRotation3d() {
-                return gyro.getRawRotation3d();
-            }
+        //     @Override
+        //     public Rotation3d getRawRotation3d() {
+        //         return imu.getRawRotation3d();
+        //     }
 
-            @Override
-            public Rotation3d getRotation3d() {
-                return gyro.getRotation3d();
-            }
+        //     @Override
+        //     public Rotation3d getRotation3d() {
+        //         return imu.getRotation3d();
+        //     }
 
-            @Override
-            public void setOffset(Rotation3d rot) {
-                gyro.setOffset(rot);
-            }
+        //     @Override
+        //     public void setOffset(Rotation3d rot) {
+        //         imu.setOffset(rot);
+        //     }
 
-            @Override
-            public void setInverted(boolean inverted) {
-                gyro.setInverted(inverted);
-             
-
-            }
-        };
+        //     @Override
+        //     public void setInverted(boolean inverted) {
+        //         imu.setInverted(inverted);
+        //     }
+        // };
 
         //FRONT LEFT SWERVE MODULE CONFIG
-        TalonFXSwerve frontLeftDriveMotor = new TalonFXSwerve(7,
-        "Front Left Drive",
+        TalonFXSwerve frontLeftDriveMotor = new TalonFXSwerve(FRONT_LEFT_DRIVE_MOTOR,
+        DRIVETRAIN_CANBUS,
         true, 
         DCMotor.getKrakenX60(1));
 
-        TalonFXSwerve frontLeftAngleMotor = new TalonFXSwerve(8,
-        "Front Left Angle",
+        TalonFXSwerve frontLeftSteerMotor = new TalonFXSwerve(FRONT_LEFT_STEER_MOTOR,
+        DRIVETRAIN_CANBUS,
         false, 
         DCMotor.getKrakenX60(1));
 
-        CANCoderSwerve frontLeftEncoder = new CANCoderSwerve(38);
+        CANCoderSwerve frontLeftEncoder = new CANCoderSwerve(FRONT_LEFT_ENCODER, DRIVETRAIN_CANBUS);
 
-        TalonFXSwerve frontRightDriveMotor = new TalonFXSwerve(2,
-        "Front Right Drive",
-        true,
-        DCMotor.getKrakenX60(1));
 
 
 
         //FRONT RIGHT SWERVE MODULE CONFIG
-        TalonFXSwerve frontRightAngleMotor = new TalonFXSwerve(1,
-        "Front Right Angle",
+        TalonFXSwerve frontRightDriveMotor = new TalonFXSwerve(FRONT_RIGHT_DRIVE_MOTOR,
+        DRIVETRAIN_CANBUS,
+        true,
+        DCMotor.getKrakenX60(1));
+
+        TalonFXSwerve frontRightSteerMotor = new TalonFXSwerve(FRONT_RIGHT_STEER_MOTOR,
+        DRIVETRAIN_CANBUS,
         false, 
         DCMotor.getKrakenX60(1));
 
-        CANCoderSwerve frontRightEncoder = new CANCoderSwerve(35);
+        CANCoderSwerve frontRightEncoder = new CANCoderSwerve(FRONT_RIGHT_ENCODER, DRIVETRAIN_CANBUS);
 
 
         //BACK LEFT SWERVE MODULE CONFIG
-        TalonFXSwerve backLeftDriveMotor = new TalonFXSwerve(5,
-        "Back Left Drive",
+        TalonFXSwerve backLeftDriveMotor = new TalonFXSwerve(BACK_LEFT_DRIVE_MOTOR,
+        DRIVETRAIN_CANBUS,
         true, 
         DCMotor.getKrakenX60(1));
 
-        TalonFXSwerve backLeftAngleMotor = new TalonFXSwerve(6,
-        "Back Left Angle",
+        TalonFXSwerve backLeftSteerMotor = new TalonFXSwerve(BACK_LEFT_STEER_MOTOR,
+        DRIVETRAIN_CANBUS,
         false, 
         DCMotor.getKrakenX60(1));
 
-        CANCoderSwerve backLeftEncoder = new CANCoderSwerve(12);
+        CANCoderSwerve backLeftEncoder = new CANCoderSwerve(BACK_LEFT_ENCODER, DRIVETRAIN_CANBUS);
 
 
         //BACK RIGHT SWERVE MODULE CONFIG
 
-        TalonFXSwerve backRightDriveMotor = new TalonFXSwerve(7, 
-        "Back Right Drive",
+        TalonFXSwerve backRightDriveMotor = new TalonFXSwerve(BACK_RIGHT_DRIVE_MOTOR, 
+        DRIVETRAIN_CANBUS,
         true,
         DCMotor.getKrakenX60(1));
 
-        TalonFXSwerve backRightAngleMotor = new TalonFXSwerve(8, 
-        "Back Right Angle",
+        TalonFXSwerve backRightSteerMotor = new TalonFXSwerve(BACK_RIGHT_STEER_MOTOR, 
+        DRIVETRAIN_CANBUS,
         false,
         DCMotor.getKrakenX60(1));
 
-        CANCoderSwerve backRightEncoder = new CANCoderSwerve(13);
-
+        CANCoderSwerve backRightEncoder = new CANCoderSwerve(BACK_RIGHT_ENCODER, DRIVETRAIN_CANBUS);
 
         //OTHER COMPONENTS
-
-        PIDFConfig anglePIDF = new PIDFConfig(0.1, 0.0, 0.0, 0.0);
-        PIDFConfig velocityPIDF = new PIDFConfig(1.0, 0.0, 0.0, 0.0);
+        PIDFConfig anglePIDF = new PIDFConfig(ANGLE_PIDF_P, ANGLE_PIDF_I, ANGLE_PIDF_D, ANGLE_PIDF_F);
+        PIDFConfig velocityPIDF = new PIDFConfig(VELOCITY_PIDF_P, VELOCITY_PIDF_I, VELOCITY_PIDF_D, VELOCITY_PIDF_F);
+        PIDFConfig headingPIDF = new PIDFConfig(HEADING_PIDF_P, HEADING_PIDF_I, HEADING_PIDF_D, HEADING_PIDF_F);
         ConversionFactorsJson conversionFactors = new ConversionFactorsJson();
         SwerveModulePhysicalCharacteristics physicalCharacteristics = 
         new SwerveModulePhysicalCharacteristics(
             conversionFactors,
-            0.7112,
-            0.8128);
+            DRIVE_MOTOR_RAMP_RATE,
+            STEER_MOTOR_RAMP_RATE
+        );
 
 
         SwerveModule frontLeftModule = new SwerveModule(
             1,new SwerveModuleConfiguration(
                 frontLeftDriveMotor,
-                frontLeftAngleMotor,
+                frontLeftSteerMotor,
                 conversionFactors,
                 frontLeftEncoder,
-                0, 
-                0.4064, 
-                0.3556, 
+                FRONT_LEFT_STEER_OFFSET, 
+                DRIVETRAIN_WHEELBASE_METERS / 2, 
+                DRIVETRAIN_TRACKWIDTH_METERS / 2, 
                 anglePIDF, 
                 velocityPIDF, 
                 physicalCharacteristics, 
                 "Front Left Module", 
-                true));
+                true
+            )
+        );
 
         SwerveModule frontRightModule = new SwerveModule(
             2, new SwerveModuleConfiguration(
                 frontRightDriveMotor,
-                frontRightAngleMotor,
+                frontRightSteerMotor,
                 conversionFactors,
                 frontRightEncoder,
-            0,
-                0,
-                0,
+                FRONT_RIGHT_STEER_OFFSET,
+                DRIVETRAIN_WHEELBASE_METERS / 2, 
+                DRIVETRAIN_TRACKWIDTH_METERS / 2, 
                 anglePIDF,
                 velocityPIDF,
                 physicalCharacteristics,
                 "Front Right Module",
-                true)
+                true
+            )
         );
 
         SwerveModule backLeftModule = new SwerveModule(
             3,new SwerveModuleConfiguration(
                 backLeftDriveMotor, 
-                backLeftAngleMotor, 
+                backLeftSteerMotor, 
                 conversionFactors, 
                 backLeftEncoder, 
-            0, 
-                0, 
-                0, 
+                BACK_LEFT_STEER_OFFSET, 
+                DRIVETRAIN_WHEELBASE_METERS / 2, 
+                DRIVETRAIN_TRACKWIDTH_METERS / 2, 
                 anglePIDF, 
                 velocityPIDF, 
                 physicalCharacteristics, 
                 "Back Left Module", 
-                true)
+                true
+            )
         );
 
         SwerveModule backRightModule = new SwerveModule(
             4,new SwerveModuleConfiguration(
                 backRightDriveMotor, 
-                backRightAngleMotor, 
+                backRightSteerMotor, 
                 conversionFactors, 
                 backRightEncoder, 
-            0, 
-                0, 
-                0, 
+                BACK_RIGHT_STEER_OFFSET, 
+                DRIVETRAIN_WHEELBASE_METERS / 2, 
+                DRIVETRAIN_TRACKWIDTH_METERS / 2, 
                 anglePIDF, 
                 velocityPIDF, 
                 physicalCharacteristics, 
                 "Back Right Module", 
-                true)
+                true
+            )
         );
 
 
@@ -233,33 +235,59 @@ public class Drivetrain extends SubsystemBase {
 
 
         SwerveDriveConfiguration drivetrainConfig = new SwerveDriveConfiguration(
-            moduleConfigurations, imu, false, physicalCharacteristics
+            moduleConfigurations, imu, INVERT_IMU, physicalCharacteristics
         );
 
-        swerveDrivetrain = new SwerveDrive(drivetrainConfig, 
-        null, 
-        0, 
-        getPose());
+        SwerveControllerConfiguration swerveControllerConfiguration = 
+            new SwerveControllerConfiguration(
+                drivetrainConfig, headingPIDF, MAX_VELOCITY_METERS_PER_SECOND
+            );
+
+        swerveDrive = new SwerveDrive(drivetrainConfig, 
+        swerveControllerConfiguration, 
+        MAX_VELOCITY_METERS_PER_SECOND, 
+        new Pose2d(0, 0, new Rotation2d()));
     }
 
-    public void drive(Translation2d Speeds, double rot, boolean fieldRelative, boolean isOpenLoop) {
-        swerveDrivetrain.drive(Speeds, rot, fieldRelative, isOpenLoop);
+    public void drive(ChassisSpeeds chassisSpeeds) {
+        swerveDrive.drive(
+            new Translation2d(
+                chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond
+            ), 
+            chassisSpeeds.omegaRadiansPerSecond, true, true
+        );
+    }
+
+    public void driveRobotOriented(ChassisSpeeds chassisSpeeds) {
+        swerveDrive.drive(
+            new Translation2d(
+                chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond
+            ), 
+            chassisSpeeds.omegaRadiansPerSecond, false, false
+        );
     }
 
     public Pose2d getPose() {
-        return swerveDrivetrain.getPose();
+        return swerveDrive.getPose();
     }
 
     public void resetOdometry(Pose2d pose) {
-        swerveDrivetrain.resetOdometry(pose);
+        swerveDrive.resetOdometry(pose);
     }
 
-    // public void zeroGyro() {
-    //     gyro.set;
-    // }
+    public void zeroIMU() {
+        swerveDrive.zeroGyro();
+    }
 
     @Override
     public void periodic() {
-        swerveDrivetrain.updateOdometry();
+        swerveDrive.updateOdometry();
     }
+
+    public static Drivetrain getInstance() {
+		if (drivetrain == null) {
+			drivetrain = new Drivetrain();
+		}
+		return drivetrain;
+	}
 }
