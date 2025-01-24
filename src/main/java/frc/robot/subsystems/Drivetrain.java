@@ -13,6 +13,8 @@ import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveModuleConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 
+import static frc.robot.config.Constants.Drivetrain.*;
+
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,8 +25,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import static frc.robot.util.Constants.Drivetrain.*;
 
 public class Drivetrain extends SubsystemBase {
     private static Drivetrain drivetrain;
@@ -256,6 +256,8 @@ public class Drivetrain extends SubsystemBase {
             ), 
             chassisSpeeds.omegaRadiansPerSecond, true, true
         );
+
+        System.out.println(chassisSpeeds.vxMetersPerSecond);
     }
 
     public void driveRobotOriented(ChassisSpeeds chassisSpeeds) {

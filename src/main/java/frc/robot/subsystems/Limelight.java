@@ -1,10 +1,9 @@
 package frc.robot.subsystems;
 
-import frc.robot.util.Constants.LimelightPipeline;
-
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.config.Constants.LimelightPipeline;
 
 public class Limelight extends SubsystemBase {
 	private static Limelight limelight;

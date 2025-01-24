@@ -1,14 +1,27 @@
-package frc.robot.util;
+package frc.robot.config;
 
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
 	public static final class OperatorConstants {
-		public static final int JOYSTICK_PORT = 0;
-		public static final int CONTROLLER_PORT = 2;
+		public static final int JOYSTICK = 0;
+		public static final int CONTROLLER = 2;
 
-		public static final int RESET_GYRO_BUTTON = 1; // on joystick 0
+		public static final int JOYSTICK_X_CHANNEL = 0;
+        public static final int JOYSTICK_Y_CHANNEL = 1;
+        public static final int JOYSTICK_TWIST_CHANNEL = 3;
+        public static final int THROTTLE_CHANNEL = 2;
+    
+        public static final double LATERAL_DEAD_BAND = 0.025;
+        public static final double ROTATE_DEAD_BAND = 0.1;
+    
+        public static final double MAX_LATERAL_THROTTLE = 1;
+        public static final double MIN_LATERAL_THROTTLE = 0.3;
+
+        public static final double MAX_ROTATE_THROTTLE = 0.3;
+        public static final double MIN_ROTATE_THROTTLE = 0.1;
 	}
+	
 	public static final class Drivetrain {
 		// Front Left
 		public static final int FRONT_LEFT_DRIVE_MOTOR = 7;
