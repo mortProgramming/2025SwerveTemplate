@@ -1,9 +1,8 @@
 package frc.robot.MORTlib.hardware.brands.rev;
 
-import frc.robot.MORTlib.hardware.encoder.EncoderIntf;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import frc.robot.MORTlib.hardware.encoder.EncoderIntf;
 
 public class ThroughBoreEncoder implements EncoderIntf{
     public int ID;
@@ -21,7 +20,7 @@ public class ThroughBoreEncoder implements EncoderIntf{
     }
 
     public Rotation2d getPosition() {
-        return Rotation2d.fromRotations(encoder.getAbsolutePosition());
+        return Rotation2d.fromRotations(encoder.get());
     }
 
     public double getVelocityRotations() {

@@ -1,14 +1,15 @@
 package frc.robot.MORTlib.hardware.brands.rev;
 
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import frc.robot.MORTlib.hardware.motor.MotorIntf;
 
-import com.revrobotics.spark.SparkLowLevel;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkClosedLoopController;
-
-public class CANSparkFlexMotor implements MotorIntf {
+public class SparkFlexMotor implements MotorIntf {
 
     public int ID;
     public SparkLowLevel.MotorType brushType;
@@ -18,7 +19,7 @@ public class CANSparkFlexMotor implements MotorIntf {
     public SparkClosedLoopController controller;
 
     // CANSparkLowLevel.MotorType.kBrushless
-    public CANSparkFlexMotor(int ID, SparkLowLevel.MotorType brushType) {
+    public SparkFlexMotor(int ID, SparkLowLevel.MotorType brushType) {
         this.ID = ID;
         this.brushType = brushType;
 
@@ -27,21 +28,23 @@ public class CANSparkFlexMotor implements MotorIntf {
         controller = motor.getClosedLoopController();
 
         config.closedLoop.pid(0, 0, 0);
-        motor.configure(config);
+        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     public void setCurrentLimit(double limit) {
-        motor.setSecondaryCurrentLimit(limit);
+        config.secondaryCurrentLimit(limit);
+        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
     }
 
     public void setDirectionFlip(boolean direction) {
-        motor.setInverted(direction);
+        config.inverted(direction);
+        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     public void setPIDValues(double kP, double kI, double kD) {
-        controller.setP(kP);
-        controller.setI(kI);
-        controller.setD(kD);
+        config.closedLoop.pid(kP, kI, kD);
+        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     public void setPercent(double percent) {
@@ -53,7 +56,7 @@ public class CANSparkFlexMotor implements MotorIntf {
     }
 
     public void setPositionRotations(double setpoint) {
-        controller.setReference(setpoint, CANSparkFlex.ControlType.kSmartMotion);
+        controller.setReference(setpoint, SparkFlex.ControlType.kMAXMotionPositionControl);
     }
 
     public void setCanivore(String canivore) {

@@ -1,17 +1,16 @@
 package frc.robot.MORTlib.hardware.motor;
 
-import frc.robot.MORTlib.hardware.brands.ctre.TalonFXMotor;
-import frc.robot.MORTlib.hardware.brands.rev.CANSparkMaxMotor;
-import frc.robot.MORTlib.hardware.brands.rev.CANSparkFlexMotor;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import frc.robot.MORTlib.hardware.brands.ctre.TalonFXMotor;
+import frc.robot.MORTlib.hardware.brands.rev.SparkFlexMotor;
+import frc.robot.MORTlib.hardware.brands.rev.SparkMaxMotor;
 
 public class Motor implements MotorIntf {
 
     public MotorTypeEnum motorType;
     public int ID;
-    public CANSparkLowLevel.MotorType brushType;
+    public MotorType brushType;
     public boolean direction;
 
     public MotorIntf motor;
@@ -20,22 +19,22 @@ public class Motor implements MotorIntf {
         this(motorType, ID, MotorType.kBrushless);
     }
     
-    public Motor(MotorTypeEnum motorType, int ID, CANSparkLowLevel.MotorType brushType) {
+    public Motor(MotorTypeEnum motorType, int ID, MotorType brushType) {
         this.motorType = motorType;
         this.ID = ID;
         this.brushType = brushType;
 
         switch (motorType) {
             case NEO:
-                motor = new CANSparkMaxMotor(ID, brushType);
+                motor = new SparkMaxMotor(ID, brushType);
                 break;
 
             case NEO550:
-                motor = new CANSparkMaxMotor(ID, brushType);
+                motor = new SparkMaxMotor(ID, brushType);
                 break;
 
             case VORTEX:
-                motor = new CANSparkFlexMotor(ID, brushType);
+                motor = new SparkFlexMotor(ID, brushType);
                 break;
 
             case FALCON:

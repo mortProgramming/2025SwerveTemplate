@@ -21,5 +21,10 @@ public final class PhysicalConstants {
 		public static final int BACK_RIGHT_OFFSET = 0;
 
 		public static final int IMU_TO_ROBOT_FRONT_ANGLE = 0;
+
+		public static final double WHEEL_COEFFICIENT_OF_FRICTION = 0;
+		public static final double ROBOT_MASS = 0;
+		public static final double ROBOT_MOMENT_OF_INERTIA = 0;
+		public static final double DRIVE_MOTOR_CURRENT_LIMIT = 0;
     }
 }
